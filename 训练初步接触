@@ -1,0 +1,24 @@
+参考http://blog.csdn.net/yimingsilence/article/details/51353772
+@@@生成图片
+ 首先用你要训练的语言创建一个文本文件，比如我要训练英文，就创建了一个名为training_text.txt的文本文件，该文件包含了所有要识别的字符
+$ text2image –text=training_text.txt –outputbase=[lang].[fontname].exp0 –font='Font Name' –fonts_dir=/path/to/your/fonts
+    text2image会生成两个文件：eng.freemono.exp0.tif和eng.freemono.exp0.box
+@@@开始训练
+$tesseract [lang].[fontname].exp[num].tif [lang].[fontname].exp[num] box.train.stderr
+    这一步会生成两个文本文件：eng.freemono.exp0.tr和eng.freemono.exp0.txt
+@@@生成字符集
+$unicharset_extractor lang.fontname.exp0.box lang.fontname.exp1.box …
+    这一步会生成一个名为unicharset的文本文件，正如其名字表明的，这个文件记录的是一个字符集，它存有box文件里面不重复的字符信息，每个单独字符占一行。
+@@@创建字体信息文件font_properties
+$<fontname> <italic> <bold> <fixed> <serif> <fraktur>
+$FreeMono 0 0 1 1 0
+@@@聚合
+$shapeclustering -F font_properties -U unicharset lang.fontname.exp0.tr lang.fontname.exp1.tr …
+    成功执行结果如下图，这一步会输出一个名为shapetable的文件，下一步的mftraining会自动在当前目录加载这个文件。
+$mftraining -F font_properties -U unicharset -O lang.unicharset lang.fontname.exp0.tr lang.fontname.exp1.tr …
+    成功执行结果如下图（输出结果有警告，但不影响），执行完成后会生成三个文件：eng.unicharset, inttemp, pffmtable
+$cntraining lang.fontname.exp0.tr lang.fontname.exp1.tr …
+    成功执行的结果如下图，这一步生成一个名为normproto的文件
+@@@合并生成traineddata文件
+@@@首先将前面生成的几个文件（包括shapetable, normproto, inttemp, pffmtable）更名为以lang.开头（在这里，就是以eng.开头，比如eng.shapetable, eng.normproto等等），然后执行以下命令将它们合并成一个traineddata文件（eng.traineddata）
+$cobime_tessdata lang.
