@@ -1,0 +1,12 @@
+sudo text2image -text=index.txt -outputbase=eng.freemono.exp1 -font=FreeMono -fonts_dir=/usr/share/fonts/truetype/freefont/
+sudo tesseract eng.freemono.exp1.tif eng.freemono.exp1 box.train.stderr
+sudo unicharset_extractor eng.freemono.exp0.box eng.freemono.exp1.box 
+sudo shapeclustering -F ../font_properties -U unicharset eng.freemono.exp0.tr eng.freemono.exp1.tr
+sudo mftraining -F ../font_properties -U unicharset -O eng.unicharset eng.freemono.exp0.tr eng.freemono.exp1.tr
+sudo cntraining eng.freemono.exp0.tr eng.freemono.exp1.tr
+sudo mv inttemp eng.inttemp
+sudo mv normproto eng.normproto
+sudo mv pffmtable eng.pffmtable
+sudo mv shapetable eng.shapetable
+sudo combine_tessdata eng.
+
